@@ -1,0 +1,2 @@
+LAB=1
+CONFIG_KSPACE=y
