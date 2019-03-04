@@ -24,6 +24,8 @@ struct Command {
 static struct Command commands[] = {
 	{ "help", "Display this list of commands", mon_help },
 	{ "kerninfo", "Display information about the kernel", mon_kerninfo },
+  { "firestarter", "I am a fire starter, Twisted fire starter", mon_firestarter },
+  { "backtrace", "Print backtrace", mon_backtrace }
 };
 #define NCOMMANDS (sizeof(commands)/sizeof(commands[0]))
 
@@ -37,6 +39,13 @@ mon_help(int argc, char **argv, struct Trapframe *tf)
 	for (i = 0; i < NCOMMANDS; i++)
 		cprintf("%s - %s\n", commands[i].name, commands[i].desc);
 	return 0;
+}
+
+int
+mon_firestarter(int argc, char **argv, struct Trapframe *tf)
+{
+	cprintf("I am a fire starter, Twisted fire starter\n");
+  return 0;
 }
 
 int
@@ -62,6 +71,20 @@ mon_kerninfo(int argc, char **argv, struct Trapframe *tf)
 int
 mon_backtrace(int argc, char **argv, struct Trapframe *tf)
 {
+  uint32_t *ebp = (uint32_t*)read_ebp();
+  struct Eipdebuginfo dinfo;
+	cprintf("Stack backtrace:\n");
+  while (ebp != (uint32_t*)0) {
+	  cprintf("  ebp %08x  eip %08x  args %08x %08x %08x %08x %08x\n",
+             *ebp, *(ebp+1), *(ebp+2), *(ebp+3), *(ebp+4), *(ebp+5), *(ebp+6));
+
+    debuginfo_eip(*(ebp+1), &dinfo);
+
+    cprintf("         %s:%d: %.*s+%d\n", dinfo.eip_file, dinfo.eip_line,
+                                        dinfo.eip_fn_namelen, dinfo.eip_fn_name,
+                                        *(ebp+1) - dinfo.eip_fn_addr); //TODO maybe sub 1
+    ebp = (uint32_t*)*ebp;
+  }
 	// Your code here.
 	return 0;
 }
