@@ -7,6 +7,8 @@
 #include <kern/monitor.h>
 #include <kern/console.h>
 
+#include <inc/uefi.h>
+
 // Test the stack backtrace function (lab 1 only)
 void
 test_backtrace(int x)
@@ -27,14 +29,37 @@ i386_init(void)
 	// Before doing anything else, complete the ELF loading process.
 	// Clear the uninitialized global data (BSS) section of our program.
 	// This ensures that all static/global variables start out zero.
+
+  LOADER_PARAMS* uefi_params = UEFI_LP; //ugly way to save uefi params pointer
 	memset(edata, 0, end - edata);
+  UEFI_LP = uefi_params; //ugly way to save uefi params pointer
 
 	// Initialize the console.
 	// Can't call cprintf until after we do this!
 	cons_init();
+/*
+  cprintf("get buffer pointer addr %p\n", UEFI_LP);
+  cprintf("frame buffer pointer  %p\n", (void*)(uintptr_t)(UEFI_LP->GPU_Configs[0].GPUArray[0].FrameBufferBase));
+  cprintf("resolution horiz %d vert %d\n", UEFI_LP->GPU_Configs[0].GPUArray[0].Info->HorizontalResolution,
+                                           UEFI_LP->GPU_Configs[0].GPUArray[0].Info->VerticalResolution);
 
+  cprintf("Memory_Map_Descriptor_Size pointer addr %p\r\n", &(UEFI_LP->Memory_Map_Descriptor_Size));
+  cprintf("Memory_Map pointer addr %p\r\n", &(UEFI_LP->Memory_Map));
+  cprintf("Memory_Map_Size pointer addr %p\r\n", &(UEFI_LP->Memory_Map_Size));
+  cprintf("Kernel_BaseAddress pointer addr %p\r\n", &(UEFI_LP->Kernel_BaseAddress));
+  cprintf("Kernel_Pages pointer addr %p\r\n", &(UEFI_LP->Kernel_Pages));
+  cprintf("ESP_Root_Device_Path pointer addr %p\r\n", &(UEFI_LP->ESP_Root_Device_Path));
+  cprintf("ESP_Root_Size pointer addr %p\r\n", &(UEFI_LP->ESP_Root_Size));
+
+  cprintf("Kernel_Path pointer addr %p\r\n", &(UEFI_LP->Kernel_Path));
+  cprintf("Kernel_Path_Size pointer addr %p\r\n", &(UEFI_LP->Kernel_Path_Size));
+  cprintf("Kernel_Options pointer addr %p\r\n", &(UEFI_LP->Kernel_Options));
+  cprintf("Kernel_Options_Size pointer addr %p\r\n", &(UEFI_LP->Kernel_Options_Size));
+  cprintf("RTServices pointer addr %p\r\n", &(UEFI_LP->RTServices));
+  cprintf("GPU_Configs pointer addr %p\n", &(UEFI_LP->GPU_Configs));
+*/
 	cprintf("6828 decimal is %o octal!\n", 6828);
-
+  cprintf("alignof uint64_t is %d\n", __alignof(uint64_t));
 	// Test the stack backtrace function (lab 1 only)
 	test_backtrace(5);
 

@@ -39,6 +39,9 @@ typedef int32_t ssize_t;
 // off_t is used for file offsets and lengths.
 typedef int32_t off_t;
 
+// for uefi path
+typedef short char16_t;
+
 // Efficient min and max operations
 #define MIN(_a, _b)						\
 ({								\

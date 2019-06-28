@@ -39,8 +39,13 @@
 .globl		_start
 _start = RELOC(entry)
 
+.global UEFI_LP
+
 .globl entry
 entry:
+  movl $(UEFI_LP),%eax
+  movl %edx,(%eax)
+
 	movw	$0x1234,0x472			# warm boot
 
 	# We haven't set up virtual memory yet, so we're running from
@@ -65,7 +70,6 @@ entry:
 
 	# Should never get here, but in case we do, just spin.
 spin:	jmp	spin
-
 
 .data
 ###################################################################
