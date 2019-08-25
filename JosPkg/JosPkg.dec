@@ -1,0 +1,24 @@
+[Defines]
+  DEC_SPECIFICATION              = 0x00010005
+  PACKAGE_NAME                   = JosPkg
+  PACKAGE_UNI_FILE               = JosPkg.uni
+  PACKAGE_GUID                   = 6bf1b1eb-3bc6-44cf-a21d-cac6cf3f0198
+  PACKAGE_VERSION                = 0.1
+
+
+[Includes]
+  Include
+
+[LibraryClasses]
+
+
+[Guids]
+
+
+[Ppis]
+
+
+[Protocols]
+
+
+

@@ -13,9 +13,7 @@
 #define CGA_BASE	0x3D4
 #define CGA_BUF		0xB8000
 
-#define CRT_ROWS	37
-#define CRT_COLS	50
-#define CRT_SIZE	(CRT_ROWS * CRT_COLS)
+#define SYMBOL_SIZE 10
 
 void cons_init(void);
 int cons_getc(void);

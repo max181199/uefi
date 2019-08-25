@@ -15,6 +15,9 @@ static void cons_putc(int c);
 
 static uint32_t uefi_vres;
 static uint32_t uefi_hres;
+static uint32_t crt_rows;
+static uint32_t crt_cols;
+static uint32_t crt_size;
 
 // Stupid I/O delay routine necessitated by historical PC design flaws
 static void
@@ -189,7 +192,7 @@ void drawChar(uint32_t *buffer, uint32_t x, uint32_t y, uint32_t color, char cha
     for (int h = 0; h < 8; h++) {
         for (int w = 0; w < 8; w++) {
             if ((p[h] >> (w)) & 1) {
-                buffer[uefi_hres*16*y + uefi_hres*h + 16*x + w] = color;
+                buffer[uefi_hres*SYMBOL_SIZE*y + uefi_hres*h + SYMBOL_SIZE*x + w] = color;
             }
         }
     }
@@ -306,6 +309,9 @@ cga_init(void)
 	crt_buf = (uint32_t*) UEFI_LP->GPU_Configs[0].GPUArray[0].FrameBufferBase;
   uefi_vres = UEFI_LP->GPU_Configs[0].GPUArray[0].Info->VerticalResolution;
   uefi_hres = UEFI_LP->GPU_Configs[0].GPUArray[0].Info->HorizontalResolution;
+  crt_rows = uefi_vres / SYMBOL_SIZE;
+  crt_cols = uefi_hres / SYMBOL_SIZE;
+  crt_size = crt_rows * crt_cols;
   memset(crt_buf, 0, uefi_hres*uefi_vres*4); //set screen of 800x600 pixals to black color
 	crt_pos = pos;
 }
@@ -324,14 +330,14 @@ cga_putc(int c)
 		if (crt_pos > 0) {
 			crt_pos--;
 //			crt_buf[crt_pos] = (c & ~0xff) | ' ';
-      drawChar(crt_buf, crt_pos % 50, crt_pos / 50, 0x0, 0x8); //Backspace code 0x8
+      drawChar(crt_buf, crt_pos % crt_cols, crt_pos / crt_cols, 0x0, 0x8); //Backspace code 0x8
 		}
 		break;
 	case '\n':
-		crt_pos += CRT_COLS;
+		crt_pos += crt_cols;
 		/* fallthru */
 	case '\r':
-		crt_pos -= (crt_pos % CRT_COLS);
+		crt_pos -= (crt_pos % crt_cols);
 		break;
 	case '\t':
 		cons_putc(' ');
@@ -342,19 +348,19 @@ cga_putc(int c)
 		break;
 	default:
 //		crt_buf[crt_pos++] = c;		/* write the character */
-    drawChar(crt_buf, crt_pos % 50, crt_pos / 50, 0xffffffff, c);
+    drawChar(crt_buf, crt_pos % crt_cols, crt_pos / crt_cols, 0xffffffff, c);
     crt_pos++;
 		break;
 	}
 
 	// What is the purpose of this?
-	if (crt_pos >= CRT_SIZE) {
+	if (crt_pos >= crt_size) {
 		int i;
 
-		memmove(crt_buf, crt_buf + uefi_hres*16, uefi_hres * (uefi_vres - 16) * sizeof(uint32_t));
-		for (i = uefi_hres * (uefi_vres - (uefi_vres % 16) - 16); i < uefi_hres * uefi_vres; i++)
+		memmove(crt_buf, crt_buf + uefi_hres*SYMBOL_SIZE, uefi_hres * (uefi_vres - SYMBOL_SIZE) * sizeof(uint32_t));
+		for (i = uefi_hres * (uefi_vres - (uefi_vres % SYMBOL_SIZE) - SYMBOL_SIZE); i < uefi_hres * uefi_vres; i++)
 			crt_buf[i] = 0;
-		crt_pos -= CRT_COLS;
+		crt_pos -= crt_cols;
 	}
 
 	/* move that little blinky thing */

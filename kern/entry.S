@@ -44,6 +44,8 @@ _start = RELOC(entry)
 .globl entry
 entry:
   movl $(UEFI_LP),%eax
+  pop %edx
+  pop %edx
   movl %edx,(%eax)
 
 	movw	$0x1234,0x472			# warm boot
