@@ -3,6 +3,11 @@
 
 #include <inc/types.h>
 
+typedef uint32_t UINTN;
+typedef uint64_t EFI_PHYSICAL_ADDRESS __attribute__((__aligned__(8)));
+typedef uint64_t EFI_VIRTUAL_ADDRESS __attribute__((__aligned__(8)));
+typedef uint64_t ALIGNEDU64 __attribute__((__aligned__(8)));
+
 typedef struct {
   ///
   /// Type of the memory region.
@@ -15,26 +20,26 @@ typedef struct {
   /// aligned on a 4 KiB boundary, and must not be above 0xfffffffffffff000. Type
   /// EFI_PHYSICAL_ADDRESS is defined in the AllocatePages() function description
   ///
-  uintptr_t  PhysicalStart;
+  EFI_PHYSICAL_ADDRESS  PhysicalStart;
   ///
   /// Virtual address of the first byte in the memory region.
   /// VirtualStart must be aligned on a 4 KiB boundary,
   /// and must not be above 0xfffffffffffff000.
   ///
-  uintptr_t   VirtualStart;
+  EFI_VIRTUAL_ADDRESS   VirtualStart;
   ///
   /// NumberOfPagesNumber of 4 KiB pages in the memory region.
   /// NumberOfPages must not be 0, and must not be any value
   /// that would represent a memory page with a start address,
   /// either physical or virtual, above 0xfffffffffffff000.
   ///
-  uint64_t                NumberOfPages;
+  ALIGNEDU64                NumberOfPages;
   ///
   /// Attributes of the memory region that describe the bit mask of capabilities
   /// for that memory region, and not necessarily the current settings for that
   /// memory region.
   ///
-  uint64_t                Attribute;
+  ALIGNEDU64                Attribute;
 } EFI_MEMORY_DESCRIPTOR;
 
 typedef enum {
@@ -121,23 +126,28 @@ typedef struct {
   ///
   /// Size of Info structure in bytes.
   ///
-  size_t                                  SizeOfInfo;
+  UINTN                                  SizeOfInfo;
   ///
   /// Base address of graphics linear frame buffer.
   /// Offset zero in FrameBufferBase represents the upper left pixel of the display.
   ///
-  uintptr_t                   FrameBufferBase;
+  EFI_PHYSICAL_ADDRESS                   FrameBufferBase;
   ///
   /// Amount of frame buffer needed to support the active mode as defined by 
   /// PixelsPerScanLine xVerticalResolution x PixelElementSize.
   ///
-  size_t                                  FrameBufferSize;
+  UINTN                                  FrameBufferSize;
 } EFI_GRAPHICS_OUTPUT_PROTOCOL_MODE;
 
 typedef struct {
   EFI_GRAPHICS_OUTPUT_PROTOCOL_MODE  *GPUArray;             // This array contains the EFI_GRAPHICS_OUTPUT_PROTOCOL_MODE structures for each available framebuffer
-  uint64_t                              NumberOfFrameBuffers; // The number of pointers in the array (== the number of available framebuffers)
+  ALIGNEDU64                              NumberOfFrameBuffers; // The number of pointers in the array (== the number of available framebuffers)
 } GPU_CONFIG;
+
+typedef struct {
+  EFI_GRAPHICS_OUTPUT_PROTOCOL_MODE  *GPUArray;             // This array contains the EFI_GRAPHICS_OUTPUT_PROTOCOL_MODE structures for each available framebuffer
+  uint64_t                              NumberOfFrameBuffers; // The number of pointers in the array (== the number of available framebuffers)
+} GPU_CONFIG2;
 
 typedef struct {
   uint16_t  Year;
@@ -157,15 +167,15 @@ typedef struct {
   ///
   /// The size of the EFI_FILE_INFO structure, including the Null-terminated FileName string.
   ///
-  uint64_t    Size;
+  ALIGNEDU64    Size;
   ///
   /// The size of the file in bytes.
   ///
-  uint64_t    FileSize;
+  ALIGNEDU64    FileSize;
   ///
   /// PhysicalSize The amount of physical space the file consumes on the file system volume.
   ///
-  uint64_t    PhysicalSize;
+  ALIGNEDU64    PhysicalSize;
   ///
   /// The time the file was created.
   ///
@@ -181,7 +191,7 @@ typedef struct {
   ///
   /// The attribute bits for the file.
   ///
-  uint64_t    Attribute;
+  ALIGNEDU64    Attribute;
   ///
   /// The Null-terminated name of the file.
   ///
@@ -214,37 +224,29 @@ typedef struct {
   uint32_t                    Bootloader_MinorVersion;        // The minor version of the bootloader
 
   uint32_t                    Memory_Map_Descriptor_Version;  // The memory descriptor version
-  size_t                     Memory_Map_Descriptor_Size;     // The size of an individual memory descriptor
+  UINTN                     Memory_Map_Descriptor_Size;     // The size of an individual memory descriptor
   EFI_MEMORY_DESCRIPTOR    *Memory_Map;                     // The system memory map as an array of EFI_MEMORY_DESCRIPTOR structs
-  size_t                     Memory_Map_Size;                // The total size of the system memory map
+  UINTN                     Memory_Map_Size;                // The total size of the system memory map
 
-  uint32_t stub1; //TODO remove
+  EFI_PHYSICAL_ADDRESS      Kernel_BaseAddress;             // The base memory address of the loaded kernel file
 
-  uintptr_t      Kernel_BaseAddress;             // The base memory address of the loaded kernel file
-
-  uint32_t stub2; //TODO remove
-
-  size_t                     Kernel_Pages;                   // The number of pages (1 page == 4096 bytes) allocated for the kernel file
+  UINTN                     Kernel_Pages;                   // The number of pages (1 page == 4096 bytes) allocated for the kernel file
 
   char16_t                   *ESP_Root_Device_Path;           // A UTF-16 string containing the drive root of the EFI System Partition as converted from UEFI device path format
-  uint64_t                    ESP_Root_Size;                  // The size (in bytes) of the above ESP root string
+  ALIGNEDU64                    ESP_Root_Size;                  // The size (in bytes) of the above ESP root string
   char16_t                   *Kernel_Path;                    // A UTF-16 string containing the kernel's file path relative to the EFI System Partition root (it's the first line of Kernel64.txt)
 
-  uint32_t stub3; //TODO remove
-
-  uint64_t                    Kernel_Path_Size;               // The size (in bytes) of the above kernel file path
+  ALIGNEDU64                    Kernel_Path_Size;               // The size (in bytes) of the above kernel file path
   char16_t                   *Kernel_Options;                 // A UTF-16 string containing various load options (it's the second line of Kernel64.txt)
 
-  uint32_t stub4; //TODO remove
-
-  uint64_t                    Kernel_Options_Size;            // The size (in bytes) of the above load options string
+  ALIGNEDU64                    Kernel_Options_Size;            // The size (in bytes) of the above load options string
 
   //TODO add EFI_RUNTIME_SERVICES description
-  uintptr_t/*EFI_RUNTIME_SERVICES*/     *RTServices;                     // UEFI Runtime Services
+  void/*EFI_RUNTIME_SERVICES*/     *RTServices;                     // UEFI Runtime Services
   GPU_CONFIG               *GPU_Configs;                    // Information about available graphics output devices; see below GPU_CONFIG struct for details
   EFI_FILE_INFO            *FileMeta;                       // Kernel file metadata
   EFI_CONFIGURATION_TABLE  *ConfigTables;                   // UEFI-installed system configuration tables (ACPI, SMBIOS, etc.)
-  size_t                     Number_of_ConfigTables;         // The number of system configuration tables
+  UINTN                     Number_of_ConfigTables;         // The number of system configuration tables
 } LOADER_PARAMS;
 
 extern LOADER_PARAMS* UEFI_LP;

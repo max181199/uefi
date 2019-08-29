@@ -306,9 +306,13 @@ cga_init(void)
 	outb(addr_6845, 15);
 	pos |= inb(addr_6845 + 1);
 
-	crt_buf = (uint32_t*) UEFI_LP->GPU_Configs[0].GPUArray[0].FrameBufferBase;
+
+	uint64_t fbbase = UEFI_LP->GPU_Configs[0].GPUArray[0].FrameBufferBase;
+	crt_buf = (uint32_t*)(uint32_t)(fbbase & 0xffffffff);
+	
   uefi_vres = UEFI_LP->GPU_Configs[0].GPUArray[0].Info->VerticalResolution;
   uefi_hres = UEFI_LP->GPU_Configs[0].GPUArray[0].Info->HorizontalResolution;
+  
   crt_rows = uefi_vres / SYMBOL_SIZE;
   crt_cols = uefi_hres / SYMBOL_SIZE;
   crt_size = crt_rows * crt_cols;

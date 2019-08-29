@@ -1,0 +1,13 @@
+Файл Makefile используется для сборки JOS, сборки uefi.img и запуска JOS с uefi.
+Не запускайте его в дирректории JosPkg (но я не в силах вас остановить).
+Перед запуском в Makefile необходимо отредактировать пути, задаваемые переменными:
+  OVMF_PATH, OS_LAB_PATH, JOS_PKG, QEMU_INST
+
+Перед сборкой образа UEFI необходимо собрать JosPkg и OVMF в составе edk2.
+
+Настройка edk2:
+При запуске на ubuntu может возникать следующая шибка при выполнении edksetup.sh:
+  ./edksetup.sh: line 222: return: can only `return' from a function or sourced script
+Чтобы добиться успешной конфигурации, запустите скрипт следующим образом:
+  . edksetup.sh
+(при желании можно добавить sudo)
