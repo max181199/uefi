@@ -6,10 +6,12 @@
 #include <inc/memlayout.h>
 #include <inc/assert.h>
 #include <inc/x86.h>
+#include <inc/uefi.h>
 
 #include <kern/console.h>
 #include <kern/monitor.h>
 #include <kern/kdebug.h>
+#include <kern/uefi_f.h>
 
 #define CMDBUF_SIZE	80	// enough for one VGA text line
 
@@ -22,10 +24,12 @@ struct Command {
 };
 
 static struct Command commands[] = {
-	{ "help", "Display this list of commands", mon_help },
-	{ "kerninfo", "Display information about the kernel", mon_kerninfo },
-  { "firestarter", "I am a fire starter, Twisted fire starter", mon_firestarter },
-  { "backtrace", "Print backtrace", mon_backtrace }
+  {"help", "Display this list of commands", mon_help },
+  {"kerninfo", "Display information about the kernel", mon_kerninfo },
+  {"firestarter", "I am a fire starter, Twisted fire starter", mon_firestarter },
+  {"backtrace", "Print backtrace", mon_backtrace },
+  {"lpinfo","print LOAD_PARAMETR info",mon_lpinfo},
+  {"PrintMemoryMap","print uefi memory map",mon_GMM},
 };
 #define NCOMMANDS (sizeof(commands)/sizeof(commands[0]))
 
@@ -39,6 +43,20 @@ mon_help(int argc, char **argv, struct Trapframe *tf)
 	for (i = 0; i < NCOMMANDS; i++)
 		cprintf("%s - %s\n", commands[i].name, commands[i].desc);
 	return 0;
+}
+
+int
+mon_GMM(int argc, char **argv, struct Trapframe *tf)
+{
+	PrintMemoryMap();
+	return 0;
+}
+
+int
+mon_lpinfo(int argc, char **argv, struct Trapframe *tf)
+{
+	LP_info();
+return 0;
 }
 
 int

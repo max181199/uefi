@@ -8,6 +8,7 @@
 #include <kern/console.h>
 
 #include <inc/uefi.h>
+#include <kern/uefi_f.h>
 
 // Test the stack backtrace function (lab 1 only)
 void
@@ -37,35 +38,38 @@ i386_init(void)
 	// Initialize the console.
 	// Can't call cprintf until after we do this!
 	cons_init();
-/*
-  cprintf("get buffer pointer addr %p\n", UEFI_LP);
-  cprintf("frame buffer pointer  %p\n", (void*)(uintptr_t)(UEFI_LP->GPU_Configs[0].GPUArray[0].FrameBufferBase));
-  cprintf("resolution horiz %d vert %d\n", UEFI_LP->GPU_Configs[0].GPUArray[0].Info->HorizontalResolution,
-                                           UEFI_LP->GPU_Configs[0].GPUArray[0].Info->VerticalResolution);
+	init_memory_map(); // initial new memory map
+			
+			//Test Allocate One
+			EFI_PHYSICAL_ADDRESS memetest ;
+			AllocatePages( AllocateAnyPages, EfiReservedMemoryType , 7, &memetest );
+			AllocatePages( AllocateAnyPages, EfiReservedMemoryType , 7, &memetest );
+			AllocatePages( AllocateAnyPages, EfiReservedMemoryType , 146, &memetest );
+			memetest=0x3000;
+			FreePages(  &memetest , 3 ); 
+			//Test Allocate One Done
 
-  cprintf("Memory_Map_Descriptor_Size pointer addr %p\r\n", &(UEFI_LP->Memory_Map_Descriptor_Size));
-  cprintf("Memory_Map pointer addr %p\r\n", &(UEFI_LP->Memory_Map));
-  cprintf("Memory_Map_Size pointer addr %p\r\n", &(UEFI_LP->Memory_Map_Size));
-  cprintf("Kernel_BaseAddress pointer addr %p\r\n", &(UEFI_LP->Kernel_BaseAddress));
-  cprintf("Kernel_Pages pointer addr %p\r\n", &(UEFI_LP->Kernel_Pages));
-  cprintf("ESP_Root_Device_Path pointer addr %p\r\n", &(UEFI_LP->ESP_Root_Device_Path));
-  cprintf("ESP_Root_Size pointer addr %p\r\n", &(UEFI_LP->ESP_Root_Size));
+			//Test Allocate Two
+			// EFI_PHYSICAL_ADDRESS memetest = 0xA000;
+			// AllocatePages( AllocateMaxAddress, EfiReservedMemoryType , 19, &memetest );
+			// AllocatePages( AllocateMaxAddress, EfiReservedMemoryType , 2, &memetest );
+			//Test Allocate Two Done
+	
+			//Test Allocate Three 
+			// EFI_PHYSICAL_ADDRESS memetest = 0xA000;
+			// AllocatePages( AllocateAddress, EfiReservedMemoryType , 10 , &memetest );
+			//
+			//Test Allocate Three Done
 
-  cprintf("Kernel_Path pointer addr %p\r\n", &(UEFI_LP->Kernel_Path));
-  cprintf("Kernel_Path_Size pointer addr %p\r\n", &(UEFI_LP->Kernel_Path_Size));
-  cprintf("Kernel_Options pointer addr %p\r\n", &(UEFI_LP->Kernel_Options));
-  cprintf("Kernel_Options_Size pointer addr %p\r\n", &(UEFI_LP->Kernel_Options_Size));
-  cprintf("RTServices pointer addr %p\r\n", &(UEFI_LP->RTServices));
-  cprintf("GPU_Configs pointer addr %p\n", &(UEFI_LP->GPU_Configs));
-*/
+
 	cprintf("6828 decimal is %o octal!\n", 6828);
-  cprintf("alignof uint64_t is %d\n", __alignof(uint64_t));
+  	cprintf("alignof uint64_t is %d\n", __alignof(uint64_t));
 	// Test the stack backtrace function (lab 1 only)
 	test_backtrace(5);
 
 	// Drop into the kernel monitor.
 	while (1)
-		monitor(NULL);
+	monitor(NULL);
 }
 
 

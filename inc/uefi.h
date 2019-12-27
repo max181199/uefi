@@ -43,6 +43,129 @@ typedef struct {
 } EFI_MEMORY_DESCRIPTOR;
 
 typedef enum {
+  /// The type of allocation to perform
+  AllocateAnyPages,
+  ///
+  /// allocate any available range of pages that satisfies the request. 
+  /// On input, the address pointed to by Memory is ignored.
+  ///
+  AllocateMaxAddress,
+  ///
+  /// allocate any available range of pages whose uppermost address is less than or equal
+  /// to the address pointed to by Memory on input
+  ///
+  AllocateAddress,
+  ///
+  /// allocate pages at the address pointed to by Memory on input.
+  ///
+  MaxAllocateType,
+  ///
+  /// ???
+  ///
+} EFI_ALLOCATE_TYPE;
+
+typedef enum {
+/// AllocatePage() Status Codes Returned
+EFI_SUCCESS,
+///
+/// The requested pages were allocated.
+///
+EFI_OUT_OF_RESOURCES,
+/// 
+/// The pages could not be allocated.
+///
+EFI_INVALID_PARAMETER,
+///
+/// Type is not AllocateAnyPages or AllocateMaxAddress or AllocateAddress.
+///
+/// MemoryType is in the range EfiMaxMemoryType..0x6FFFFFFF.
+///
+/// MemoryType is EfiPersistentMemory.
+///
+/// Memory is NULL.
+///
+EFI_NOT_FOUND,
+///
+/// The requested pages could not be found.
+///
+} EFI_ALLOCATE_ERROR;
+
+typedef enum {
+  /// All memory type in standart
+  EfiReservedMemoryType,
+  ///
+  /// Not usable.
+  ///
+  EfiLoaderCode,
+  ///
+  /// The code portions of a loaded UEFI application.
+  ///
+  EfiLoaderData,
+  ///
+  /// The data portions of a loaded UEFI application and the default data allocation
+  /// type used by a UEFI application to allocate pool memory.
+  ///
+  EfiBootServicesCode,
+  ///
+  /// The code portions of a loaded UEFI Boot Service Driver.
+  ///
+  EfiBootServicesData,
+  ///
+  /// The data portions of a loaded UEFI Boot Serve Driver,
+  /// and the default data allocation type used by a UEFI Boot Service Driver
+  /// to allocate pool memory.
+  ///
+  EfiRuntimeServicesCode,
+  ///
+  /// The code portions of a loaded UEFI Runtime Driver.
+  ///
+  EfiRuntimeServicesData,
+  ///
+  /// The data portions of a loaded UEFI Runtime Driver and the default data
+  /// allocation type used by a UEFI Runtime Driver to allocate pool memory.
+  ///
+  EfiConventionalMemory,
+  ///
+  /// Free (unallocated) memory.
+  ///
+  EfiUnusableMemory,
+  ///
+  /// Memory in which errors have been detected.
+  ///
+  EfiACPIReclaimMemory,
+  ///
+  /// Memory that holds the ACPI tables.
+  ///
+  EfiACPIMemoryNVS,
+  ///
+  /// Address space reserved for use by the firmware.
+  ///
+  EfiMemoryMappedIO,
+  ///
+  /// Used by system firmware to request that a memory-mapped IO
+  /// region be mapped by the OS to a virtual address so it can be accessed by EFI runtime services.
+  ///
+  EfiMemoryMappedIOPortSpace,
+  ///
+  /// System memory-mapped IO region that is used to translate memory cycles to IO cycles by the processor.
+  ///
+  EfiPalCode,
+  ///
+  /// Address space reserved by the firmware for code that is part of the processor.
+  ///
+  EfiPersistentMemory,
+  ///
+  /// A memory region that operates as EfiConventionalMemory.
+  /// However, it happens to also support byte-addressable non-volatility.
+  ///
+  EfiMaxMemoryType,
+  ///
+  /// ???
+  ///
+} EFI_MEMORY_TYPE;
+
+
+typedef enum {
   ///
   /// A pixel is 32-bits and byte zero represents red, byte one represents green, 
   /// byte two represents blue, and byte three is reserved. This is the definition 
@@ -222,25 +345,23 @@ typedef struct {
   uint32_t                    UEFI_Version;                   // The system UEFI version
   uint32_t                    Bootloader_MajorVersion;        // The major version of the bootloader
   uint32_t                    Bootloader_MinorVersion;        // The minor version of the bootloader
-
   uint32_t                    Memory_Map_Descriptor_Version;  // The memory descriptor version
+
+
   UINTN                     Memory_Map_Descriptor_Size;     // The size of an individual memory descriptor
   EFI_MEMORY_DESCRIPTOR    *Memory_Map;                     // The system memory map as an array of EFI_MEMORY_DESCRIPTOR structs
   UINTN                     Memory_Map_Size;                // The total size of the system memory map
 
+
+
   EFI_PHYSICAL_ADDRESS      Kernel_BaseAddress;             // The base memory address of the loaded kernel file
-
   UINTN                     Kernel_Pages;                   // The number of pages (1 page == 4096 bytes) allocated for the kernel file
-
   char16_t                   *ESP_Root_Device_Path;           // A UTF-16 string containing the drive root of the EFI System Partition as converted from UEFI device path format
   ALIGNEDU64                    ESP_Root_Size;                  // The size (in bytes) of the above ESP root string
   char16_t                   *Kernel_Path;                    // A UTF-16 string containing the kernel's file path relative to the EFI System Partition root (it's the first line of Kernel64.txt)
-
   ALIGNEDU64                    Kernel_Path_Size;               // The size (in bytes) of the above kernel file path
   char16_t                   *Kernel_Options;                 // A UTF-16 string containing various load options (it's the second line of Kernel64.txt)
-
   ALIGNEDU64                    Kernel_Options_Size;            // The size (in bytes) of the above load options string
-
   //TODO add EFI_RUNTIME_SERVICES description
   void/*EFI_RUNTIME_SERVICES*/     *RTServices;                     // UEFI Runtime Services
   GPU_CONFIG               *GPU_Configs;                    // Information about available graphics output devices; see below GPU_CONFIG struct for details
